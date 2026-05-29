@@ -2,215 +2,160 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>Feelings & Emotions Game</title>
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
 <style>
-
-body{
+*{
     margin:0;
-    font-family:Arial, sans-serif;
-    background:#f3e5f5;
-    text-align:center;
-}
-
-.screen{
-    display:none;
-    min-height:100vh;
-    padding:20px;
+    padding:0;
     box-sizing:border-box;
 }
 
-.active{
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f7fb;
+    text-align:center;
+    overflow-x:hidden;
+}
+
+.hidden{
+    display:none;
+}
+
+#splash{
+    position:fixed;
+    inset:0;
+    background:white;
     display:flex;
-    flex-direction:column;
     justify-content:center;
     align-items:center;
+    z-index:999;
 }
 
-.logo{
-    width:400px;
-    max-width:90%;
+#splash img{
+    width:280px;
+    max-width:80%;
 }
 
-#questionImage{
-    width:650px;
-    height:450px;
-    object-fit:contain;
-    margin:20px auto;
-    display:block;
+#gameContainer{
+    padding:20px;
 }
 
-#optionsContainer{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
-.optionBtn{
-    width:550px;
-    height:100px;
-    margin:12px;
-    border:none;
-    border-radius:25px;
-    background:white;
-    font-size:40px;
-    font-weight:bold;
-    cursor:pointer;
-    box-shadow:0 4px 10px rgba(0,0,0,0.15);
-}
-
-.optionBtn:hover{
-    transform:scale(1.02);
-}
-
-h1{
-    color:#6a1b9a;
-}
-
-.score{
+#questionNumber{
     font-size:28px;
+    margin-top:10px;
+    color:#333;
+}
+
+#questionText{
+    font-size:30px;
+    margin:20px 0;
+    color:#222;
+}
+
+#emotionImage{
+    width:420px;
+    max-width:90%;
+    height:auto;
+    border-radius:20px;
+    background:white;
+    padding:10px;
+    box-shadow:0 0 15px rgba(0,0,0,.1);
+}
+
+.answer-grid{
+    margin-top:25px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
+    max-width:700px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.answer-btn{
+    padding:18px;
+    font-size:28px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+    background:#4e73df;
+    color:white;
+    transition:.3s;
+}
+
+.answer-btn:hover{
+    transform:scale(1.03);
+}
+
+.correct{
+    background:#28a745 !important;
+}
+
+.wrong{
+    background:#dc3545 !important;
+}
+
+#scoreBoard{
+    font-size:28px;
+    margin-top:20px;
     font-weight:bold;
 }
 
-@media(max-width:768px){
-
-    .logo{
-        width:280px;
-    }
-
-    #questionImage{
-        width:90%;
-        height:300px;
-    }
-
-    .optionBtn{
-        width:90%;
-        height:85px;
-        font-size:28px;
-    }
+#resultScreen{
+    padding:40px;
 }
 
+#finalScore{
+    font-size:40px;
+    margin:20px 0;
+}
+
+#playAgain{
+    padding:18px 35px;
+    font-size:28px;
+    border:none;
+    border-radius:15px;
+    background:#4e73df;
+    color:white;
+    cursor:pointer;
+}
 </style>
 </head>
-
 <body>
 
-<!-- SPLASH SCREEN -->
+<div id="splash">
+    <img src="innovine_logo.png" alt="Innovine Logo">
+</div>
 
-<div id="splashScreen" class="screen active">
+<div id="gameContainer" class="hidden">
 
-    <img
-        src="assets/innovinelogo.png"
-        class="logo"
-        alt="Innovine Logo">
+    <div id="questionNumber"></div>
 
-    <h1>Feelings & Emotions</h1>
+    <div id="questionText">
+        Look at the picture and tap the correct emotion.
+    </div>
 
-    <h2>Let's Learn Together!</h2>
+    <img id="emotionImage">
+
+    <div id="answers" class="answer-grid"></div>
+
+    <div id="scoreBoard">
+        Score: <span id="score">0</span>
+    </div>
 
 </div>
 
-<!-- GAME SCREEN -->
-
-<div id="gameScreen" class="screen">
-
-    <h2 id="questionCounter"></h2>
-
-    <div class="score" id="scoreText"></div>
-
-    <h2>How is the child feeling?</h2>
-
-    <img id="questionImage">
-
-    <div id="optionsContainer"></div>
-
-</div>
-
-<!-- END SCREEN -->
-
-<div id="endScreen" class="screen">
+<div id="resultScreen" class="hidden">
 
     <h1>🎉 Great Job! 🎉</h1>
 
-    <h2 id="finalScore"></h2>
+    <div id="finalScore"></div>
 
-    <img
-        src="assets/innovinelogo.png"
-        class="logo"
-        alt="Innovine Logo">
-
-    <br><br>
-
-    <button
-        class="optionBtn"
-        onclick="restartGame()">
+    <button id="playAgain">
         Play Again
     </button>
 
 </div>
-
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
-<audio id="clapsSound" src="assets/claps.mp3"></audio>
-
-<script>
-
-const emotions = [
-
-{
-    name:"Happy",
-    emoji:"😀",
-    images:[
-        "assets/happy.png",
-        "assets/happy1.png"
-    ]
-},
-
-{
-    name:"Sad",
-    emoji:"😢",
-    images:[
-        "assets/sad.png",
-        "assets/sad1.png"
-    ]
-},
-
-{
-    name:"Angry",
-    emoji:"😡",
-    images:[
-        "assets/angry.png",
-        "assets/angry1.png"
-    ]
-},
-
-{
-    name:"Scared",
-    emoji:"😨",
-    images:[
-        "assets/scared.png",
-        "assets/scared1.png"
-    ]
-},
-
-{
-    name:"Surprised",
-    emoji:"😲",
-    images:[
-        "assets/surprised.png",
-        "assets/surprised1.png"
-    ]
-},
-
-{
-    name:"Tired",
-    emoji:"😴",
-    images:[
-        "assets/tired.png",
-        "assets/tired1.png"
-    ]
-}
-];
