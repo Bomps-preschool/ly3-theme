@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feelings & Emotions</title>
+<title>Feelings & Emotions Game</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
 <style>
+
 body{
     margin:0;
     font-family:Arial, sans-serif;
@@ -30,67 +31,94 @@ body{
 }
 
 .logo{
-    width:220px;
-    max-width:80%;
-}
-
-h1{
-    color:#4a148c;
+    width:400px;
+    max-width:90%;
 }
 
 #questionImage{
-    max-width:350px;
-    max-height:300px;
-    margin:20px;
+    width:650px;
+    height:450px;
+    object-fit:contain;
+    margin:20px auto;
+    display:block;
+}
+
+#optionsContainer{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
 .optionBtn{
-    width:300px;
-    padding:15px;
-    margin:10px;
-    font-size:28px;
+    width:550px;
+    height:100px;
+    margin:12px;
     border:none;
-    border-radius:15px;
+    border-radius:25px;
+    background:white;
+    font-size:40px;
+    font-weight:bold;
     cursor:pointer;
-    background:#ffffff;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
 }
 
 .optionBtn:hover{
-    background:#ede7f6;
+    transform:scale(1.02);
+}
+
+h1{
+    color:#6a1b9a;
 }
 
 .score{
-    font-size:24px;
+    font-size:28px;
     font-weight:bold;
 }
 
-#endScreen{
-    background:#f3e5f5;
+@media(max-width:768px){
+
+    .logo{
+        width:280px;
+    }
+
+    #questionImage{
+        width:90%;
+        height:300px;
+    }
+
+    .optionBtn{
+        width:90%;
+        height:85px;
+        font-size:28px;
+    }
 }
 
-.playAgain{
-    padding:15px 30px;
-    font-size:24px;
-    border:none;
-    border-radius:15px;
-    cursor:pointer;
-}
 </style>
 </head>
 
 <body>
 
 <!-- SPLASH SCREEN -->
+
 <div id="splashScreen" class="screen active">
-    <img src="innovinelogo.png" class="logo">
+
+    <img
+        src="assets/innovinelogo.png"
+        class="logo"
+        alt="Innovine Logo">
+
     <h1>Feelings & Emotions</h1>
+
     <h2>Let's Learn Together!</h2>
+
 </div>
 
 <!-- GAME SCREEN -->
+
 <div id="gameScreen" class="screen">
 
     <h2 id="questionCounter"></h2>
+
     <div class="score" id="scoreText"></div>
 
     <h2>How is the child feeling?</h2>
@@ -102,186 +130,87 @@ h1{
 </div>
 
 <!-- END SCREEN -->
+
 <div id="endScreen" class="screen">
 
     <h1>🎉 Great Job! 🎉</h1>
 
     <h2 id="finalScore"></h2>
 
-    <img src="innovinelogo.png" class="logo">
+    <img
+        src="assets/innovinelogo.png"
+        class="logo"
+        alt="Innovine Logo">
 
     <br><br>
 
-    <button class="playAgain" onclick="restartGame()">
+    <button
+        class="optionBtn"
+        onclick="restartGame()">
         Play Again
     </button>
 
 </div>
 
-<audio id="correctSound" src="correct.mp3"></audio>
-<audio id="wrongSound" src="wrong.mp3"></audio>
-<audio id="clapsSound" src="claps.mp3"></audio>
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapsSound" src="assets/claps.mp3"></audio>
 
 <script>
 
 const emotions = [
+
 {
-name:"Happy",
-emoji:"😀",
-images:["happy.png","happy1.png"]
+    name:"Happy",
+    emoji:"😀",
+    images:[
+        "assets/happy.png",
+        "assets/happy1.png"
+    ]
 },
+
 {
-name:"Sad",
-emoji:"😢",
-images:["sad.png","sad1.png"]
+    name:"Sad",
+    emoji:"😢",
+    images:[
+        "assets/sad.png",
+        "assets/sad1.png"
+    ]
 },
+
 {
-name:"Angry",
-emoji:"😡",
-images:["angry.png","angry1.png"]
+    name:"Angry",
+    emoji:"😡",
+    images:[
+        "assets/angry.png",
+        "assets/angry1.png"
+    ]
 },
+
 {
-name:"Scared",
-emoji:"😨",
-images:["scared.png","scared1.png"]
+    name:"Scared",
+    emoji:"😨",
+    images:[
+        "assets/scared.png",
+        "assets/scared1.png"
+    ]
 },
+
 {
-name:"Surprised",
-emoji:"😲",
-images:["surprised.png","surprised1.png"]
+    name:"Surprised",
+    emoji:"😲",
+    images:[
+        "assets/surprised.png",
+        "assets/surprised1.png"
+    ]
 },
+
 {
-name:"Tired",
-emoji:"😴",
-images:["tired.png","tired1.png"]
+    name:"Tired",
+    emoji:"😴",
+    images:[
+        "assets/tired.png",
+        "assets/tired1.png"
+    ]
 }
 ];
-
-let score = 0;
-let questionNumber = 1;
-let currentEmotion;
-
-setTimeout(() => {
-    document.getElementById("splashScreen").classList.remove("active");
-    document.getElementById("gameScreen").classList.add("active");
-    loadQuestion();
-}, 5000);
-
-function shuffle(array){
-    return array.sort(() => Math.random() - 0.5);
-}
-
-function loadQuestion(){
-
-    document.getElementById("questionCounter").innerHTML =
-        `Question ${questionNumber} of 10`;
-
-    document.getElementById("scoreText").innerHTML =
-        `Score: ${score}`;
-
-    currentEmotion =
-        emotions[Math.floor(Math.random() * emotions.length)];
-
-    const image =
-        currentEmotion.images[
-            Math.floor(Math.random() * currentEmotion.images.length)
-        ];
-
-    document.getElementById("questionImage").src = image;
-
-    let options =
-        shuffle([...emotions]).slice(0,3);
-
-    if(!options.some(e => e.name === currentEmotion.name)){
-        options[0] = currentEmotion;
-    }
-
-    options = shuffle(options);
-
-    const container =
-        document.getElementById("optionsContainer");
-
-    container.innerHTML = "";
-
-    options.forEach(option => {
-
-        const btn = document.createElement("button");
-
-        btn.className = "optionBtn";
-
-        btn.innerHTML =
-            `${option.emoji} ${option.name}`;
-
-        btn.onclick = () => checkAnswer(option.name);
-
-        container.appendChild(btn);
-    });
-}
-
-function checkAnswer(answer){
-
-    if(answer === currentEmotion.name){
-
-        score++;
-
-        document.getElementById("correctSound").play();
-
-        setTimeout(nextQuestion, 800);
-
-    } else {
-
-        document.getElementById("wrongSound").play();
-
-        alert("Try Again 😊");
-    }
-}
-
-function nextQuestion(){
-
-    if(questionNumber >= 10){
-        showEndScreen();
-        return;
-    }
-
-    questionNumber++;
-    loadQuestion();
-}
-
-function showEndScreen(){
-
-    document.getElementById("gameScreen")
-        .classList.remove("active");
-
-    document.getElementById("endScreen")
-        .classList.add("active");
-
-    document.getElementById("finalScore")
-        .innerHTML = `Your Score: ${score} / 10`;
-
-    document.getElementById("clapsSound").play();
-
-    confetti({
-        particleCount: 250,
-        spread: 180,
-        origin: { y: 0.6 }
-    });
-}
-
-function restartGame(){
-
-    score = 0;
-    questionNumber = 1;
-
-    document.getElementById("endScreen")
-        .classList.remove("active");
-
-    document.getElementById("gameScreen")
-        .classList.add("active");
-
-    loadQuestion();
-}
-
-</script>
-
-</body>
-</html>
